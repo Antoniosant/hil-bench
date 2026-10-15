@@ -1,0 +1,11 @@
+[project]
+name = "hil-bench"
+version = "0.1.0"
+description = "Hardware-in-the-Loop test bench: bare-metal firmware on an ARM Cortex-M board, tested from a Raspberry Pi with pytest"
+requires-python = ">=3.10"
+dependencies = ["pyserial>=3.5", "pytest>=8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["host"]
+testpaths = ["tests"]
+addopts = "-ra"

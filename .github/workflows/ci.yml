@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  firmware:
+    name: Build firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ARM toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi cmake
+      - name: Configure
+        run: cmake -S firmware -B build -DCMAKE_TOOLCHAIN_FILE="$PWD/firmware/cmake/arm-none-eabi.cmake"
+      - name: Build
+        run: cmake --build build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            build/firmware.elf
+            build/firmware.bin
+            build/firmware.map
+
+  simulator-tests:
+    name: Tests against the simulator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest --dut sim --junitxml=reports/sim.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sim-test-report
+          path: reports/
+
+  # Phase 4: run the same suite on the real board through a self-hosted
+  # runner on the Raspberry Pi (label "hil"). Uncomment once the runner exists.
+  #
+  # hardware-tests:
+  #   name: Tests on real hardware
+  #   needs: firmware
+  #   runs-on: [self-hosted, hil]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: firmware
+  #         path: build
+  #     - run: tools/flash_tm4c123.sh build/firmware.elf
+  #     - run: pip install -r requirements.txt
+  #     - run: pytest --dut serial --port /dev/ttyACM0 --junitxml=reports/hil.xml
