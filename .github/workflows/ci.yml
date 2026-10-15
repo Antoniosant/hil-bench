@@ -55,4 +55,4 @@ jobs:
   #         path: build
   #     - run: tools/flash_tm4c123.sh build/firmware.elf
   #     - run: pip install -r requirements.txt
-  #     - run: pytest --dut serial --port /dev/ttyACM0 --junitxml=reports/hil.xml
+  #     - run: pytest --dut serial --port=/dev/ttyACM0 --junitxml=reports/hil.xml

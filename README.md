@@ -60,7 +60,7 @@ cmake -S firmware -B build -DCMAKE_TOOLCHAIN_FILE="$PWD/firmware/cmake/arm-none-
 cmake --build build
 tools/flash_tm4c123.sh build/firmware.elf
 
-pytest --dut serial --port /dev/ttyACM0
+pytest --dut serial --port=/dev/ttyACM0
 ```
 
 ## Roadmap
