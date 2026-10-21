@@ -11,8 +11,8 @@ Cortex-M board, exercised automatically from a Raspberry Pi with pytest.
  │                │─────────────────────────────►│                          │
  │                │   (flashing)                 │                          │
  │                │                              │                          │
- │  GPIO17 ───────┼──── STIM ───────────────────►│ PB4  pin-change IRQ      │
- │  GPIO27 ◄──────┼──── RESP ────────────────────┤ PB5  copies STIM         │
+ │  GPIO12 ───────┼──── STIM ───────────────────►│ PB4  pin-change IRQ      │
+ │  GPIO13 ◄──────┼──── RESP ────────────────────┤ PB5  copies STIM         │
  └────────────────┘                              └──────────────────────────┘
 ```
 
@@ -56,11 +56,12 @@ as `latency_p50_us`, `latency_p99_us` and `latency_max_us`).
 
 | Raspberry Pi 4 header | LaunchPad | Signal |
 |-----------------------|-----------|--------|
-| pin 11 (GPIO17) | PB4 | STIM, Pi to board |
-| pin 13 (GPIO27) | PB5 | RESP, board to Pi |
-| pin 9 (GND) | GND | common ground |
+| pin 32 (GPIO12) | PB4 | STIM, Pi to board |
+| pin 33 (GPIO13) | PB5 | RESP, board to Pi |
+| pin 34 (GND) | GND | common ground |
 
-Both sides use 3.3 V logic. Never wire the Pi's 5 V pins to a GPIO.
+Both sides use 3.3 V logic. Never wire the Pi's 5 V pins to a GPIO. The pins
+sit outside header pins 1-26, so they stay free with an SPI display HAT fitted.
 
 The measured latency includes the Pi's own user-space and kernel overhead,
 which is far larger than the firmware's interrupt latency (a few microseconds

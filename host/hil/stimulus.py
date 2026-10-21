@@ -2,11 +2,14 @@
 
 Wiring on the bench (Raspberry Pi 4 header -> TM4C123G LaunchPad):
 
-    Pi pin 11 (GPIO17)  ->  PB4  (STIM)
-    Pi pin 13 (GPIO27)  <-  PB5  (RESP)
-    Pi pin 9  (GND)     --  GND
+    Pi pin 32 (GPIO12)  ->  PB4  (STIM)
+    Pi pin 33 (GPIO13)  <-  PB5  (RESP)
+    Pi pin 34 (GND)     --  GND
 
-Both sides are 3.3 V logic, so no level shifting is needed.
+Both sides are 3.3 V logic, so no level shifting is needed. These pins are
+free with an SPI display HAT fitted (such HATs cover header pins 1-26 and take
+GPIO17 for touch), and both default to pull-down, so STIM idles low before the
+tests claim it.
 """
 
 from __future__ import annotations
@@ -14,8 +17,8 @@ from __future__ import annotations
 import time
 from datetime import timedelta
 
-STIM_LINE = 17
-RESP_LINE = 27
+STIM_LINE = 12
+RESP_LINE = 13
 
 
 class StimulusTimeout(Exception):
@@ -27,7 +30,7 @@ class GpiodStimulus:
 
     def __init__(self, chip: str = "/dev/gpiochip0", stim_line: int = STIM_LINE, resp_line: int = RESP_LINE):
         import gpiod  # imported lazily so simulator runs need no libgpiod
-        from gpiod.line import Direction, Edge, Value
+        from gpiod.line import Bias, Direction, Edge, Value
 
         self._gpiod = gpiod
         self._value = Value
@@ -38,7 +41,9 @@ class GpiodStimulus:
             consumer="hil-bench",
             config={
                 stim_line: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=Value.INACTIVE),
-                resp_line: gpiod.LineSettings(direction=Direction.INPUT, edge_detection=Edge.BOTH),
+                resp_line: gpiod.LineSettings(
+                    direction=Direction.INPUT, edge_detection=Edge.BOTH, bias=Bias.PULL_DOWN
+                ),
             },
         )
 
