@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import time
 
-FW_VERSION = "0.1.0"
+FW_VERSION = "0.2.0"
 MAX_LINE = 64
 LEDS = ("RED", "GREEN", "BLUE")
 
@@ -18,6 +18,17 @@ class SimFirmware:
     def __init__(self) -> None:
         self._start = time.monotonic()
         self._leds = {name: False for name in LEDS}
+        # GPIO loop: the simulated wire from the host's stimulus to the STIM pin.
+        self.stim = False
+        self.resp = False
+        self.stim_edges = 0
+
+    def set_stim(self, level: bool) -> None:
+        """Model of the pin-change interrupt: RESP follows STIM, edges are counted."""
+        if level != self.stim:
+            self.stim = level
+            self.resp = level
+            self.stim_edges = (self.stim_edges + 1) & 0xFFFFFFFF
 
     def handle_line(self, line: str) -> str:
         if len(line) > MAX_LINE:
@@ -49,4 +60,8 @@ class SimFirmware:
             if args:
                 return "ERR BAD_ARGS"
             return f"UPTIME {int((time.monotonic() - self._start) * 1000) & 0xFFFFFFFF}"
+        if cmd == "GPIO":
+            if args:
+                return "ERR BAD_ARGS"
+            return f"GPIO STIM={int(self.stim)} RESP={int(self.resp)} EDGES={self.stim_edges}"
         return "ERR UNKNOWN_COMMAND"

@@ -1,9 +1,10 @@
 /*
  * Minimal Cortex-M4 startup for the TM4C123GH6PM.
  *
- * Only the 16 core exception vectors are populated: no peripheral interrupt
- * is enabled yet, so the device-specific entries are not needed. Extend the
- * table before enabling any NVIC interrupt.
+ * The table holds the 16 core exception vectors plus the device interrupts up
+ * to the last one the firmware enables (GPIO port B, IRQ 1). Extend it before
+ * enabling any higher NVIC interrupt: an enabled IRQ with no entry here would
+ * fetch its handler address from whatever follows the table in flash.
  */
 #include <stdint.h>
 
@@ -23,9 +24,11 @@ void UsageFault_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void SVC_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void DebugMon_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void PendSV_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void GPIOA_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void GPIOB_Handler(void) __attribute__((weak, alias("Default_Handler")));
 
 __attribute__((section(".isr_vector"), used))
-void (*const vector_table[16])(void) = {
+void (*const vector_table[18])(void) = {
     (void (*)(void))(&_estack),
     Reset_Handler,
     NMI_Handler,
@@ -42,6 +45,8 @@ void (*const vector_table[16])(void) = {
     0,
     PendSV_Handler,
     SysTick_Handler,
+    GPIOA_Handler, /* IRQ 0 */
+    GPIOB_Handler, /* IRQ 1 */
 };
 
 void Reset_Handler(void)

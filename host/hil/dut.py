@@ -26,6 +26,18 @@ class SerialDut:
         time.sleep(0.1)
         self._serial.reset_input_buffer()
 
+    def wait_ready(self, timeout: float = 5.0) -> None:
+        """Retry PING until the firmware answers, e.g. while it boots after a flash."""
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                if self.command("PING") == "PONG":
+                    self._serial.reset_input_buffer()
+                    return
+            except DutTimeout:
+                pass
+        raise DutTimeout(f"no PONG within {timeout} s")
+
     def command(self, line: str) -> str:
         self._serial.write((line + "\n").encode("ascii"))
         raw = self._serial.readline()
@@ -41,10 +53,10 @@ class SimDut:
     """In-process model of the firmware protocol, for runs without hardware."""
 
     def __init__(self) -> None:
-        self._fw = SimFirmware()
+        self.firmware = SimFirmware()
 
     def command(self, line: str) -> str:
-        return self._fw.handle_line(line)
+        return self.firmware.handle_line(line)
 
     def close(self) -> None:
         pass

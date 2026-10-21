@@ -32,4 +32,13 @@ void board_uart_putc(char c);
 /* Non-blocking receive: returns true and stores the byte if one was available. */
 bool board_uart_getc(char *c);
 
+/*
+ * GPIO in the loop. The host drives the STIM input; a pin-change interrupt
+ * copies its level to the RESP output and counts every STIM edge, so the host
+ * can measure how fast the firmware reacts and whether it misses edges.
+ */
+bool board_stim_get(void);
+bool board_resp_get(void);
+uint32_t board_stim_edges(void);
+
 #endif /* BOARD_H */

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 project(hil_bench_fw C)
 
 set(BOARD tm4c123 CACHE STRING "Target board (directory under boards/)")
-set(FW_VERSION "0.1.0")
+set(FW_VERSION "0.2.0")
 
 set(CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfloat-abi=soft)
 

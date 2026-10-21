@@ -9,6 +9,7 @@
  *   LED <RED|GREEN|BLUE> <ON|OFF> -> OK
  *   LEDS                          -> LEDS RED=<0|1> GREEN=<0|1> BLUE=<0|1>
  *   UPTIME                        -> UPTIME <milliseconds>
+ *   GPIO                          -> GPIO STIM=<0|1> RESP=<0|1> EDGES=<count>
  *
  * Errors: ERR EMPTY, ERR UNKNOWN_COMMAND, ERR BAD_ARGS, ERR LINE_TOO_LONG
  */

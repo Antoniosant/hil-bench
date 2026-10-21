@@ -147,6 +147,17 @@ void protocol_handle_line(const char *line, char *out, size_t out_len)
         }
         out_str(out, out_len, &pos, "UPTIME ");
         out_u32(out, out_len, &pos, board_uptime_ms());
+    } else if (str_eq(tok[0], "GPIO")) {
+        if (n != 1) {
+            out_str(out, out_len, &pos, "ERR BAD_ARGS");
+            return;
+        }
+        out_str(out, out_len, &pos, "GPIO STIM=");
+        out_str(out, out_len, &pos, board_stim_get() ? "1" : "0");
+        out_str(out, out_len, &pos, " RESP=");
+        out_str(out, out_len, &pos, board_resp_get() ? "1" : "0");
+        out_str(out, out_len, &pos, " EDGES=");
+        out_u32(out, out_len, &pos, board_stim_edges());
     } else {
         out_str(out, out_len, &pos, "ERR UNKNOWN_COMMAND");
     }
