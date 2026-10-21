@@ -26,17 +26,30 @@ class SerialDut:
         time.sleep(0.1)
         self._serial.reset_input_buffer()
 
-    def wait_ready(self, timeout: float = 5.0) -> None:
-        """Retry PING until the firmware answers, e.g. while it boots after a flash."""
+    @classmethod
+    def connect(cls, port: str, timeout: float = 10.0) -> "SerialDut":
+        """Open the port and wait until the firmware answers PING.
+
+        Right after flashing, the debugger's USB serial port can disappear and
+        come back while the board resets, so failures to open or read the port
+        are retried, reopening it each time, until the timeout.
+        """
+        import serial
+
         deadline = time.monotonic() + timeout
+        last_error: Exception | None = None
         while time.monotonic() < deadline:
+            dut = None
             try:
-                if self.command("PING") == "PONG":
-                    self._serial.reset_input_buffer()
-                    return
-            except DutTimeout:
-                pass
-        raise DutTimeout(f"no PONG within {timeout} s")
+                dut = cls(port)
+                if dut.command("PING") == "PONG":
+                    return dut
+            except (serial.SerialException, OSError, DutTimeout) as exc:
+                last_error = exc
+            if dut is not None:
+                dut.close()
+            time.sleep(0.2)
+        raise DutTimeout(f"{port}: no PONG within {timeout} s (last error: {last_error})")
 
     def command(self, line: str) -> str:
         self._serial.write((line + "\n").encode("ascii"))

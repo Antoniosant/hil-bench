@@ -40,8 +40,7 @@ def dut(request):
         elf = request.config.getoption("--flash")
         if elf is not None:
             subprocess.run([str(FLASH_SCRIPT), elf], check=True)
-        connection = SerialDut(request.config.getoption("--port"))
-        connection.wait_ready()
+        connection = SerialDut.connect(request.config.getoption("--port"))
     else:
         connection = SimDut()
     yield connection
