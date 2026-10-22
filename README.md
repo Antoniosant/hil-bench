@@ -17,8 +17,10 @@ Cortex-M board, exercised automatically from a Raspberry Pi with pytest.
 ```
 
 The same test suite runs against the real board (`--dut serial`) or against a
-Python model of the firmware (`--dut sim`), so it also runs in CI without
-hardware.
+Python model of the firmware (`--dut sim`). On every push to `master`, GitHub
+Actions builds the firmware in the cloud, runs the suite against the model,
+then a self-hosted runner on the Pi flashes the real board and runs the suite
+on it.
 
 ## Layout
 
@@ -113,14 +115,14 @@ The `hardware-tests` job in `.github/workflows/ci.yml` runs on a self-hosted
 GitHub Actions runner on the Raspberry Pi (labels `self-hosted`, `hil`). On
 every push to `master` it takes the firmware built in the cloud, flashes it
 to the board and runs the suite on real hardware, publishing a JUnit report.
-Pull requests never reach the Pi. The job is skipped until the repository
-variable `HIL_RUNNER` is set to `true` (Settings > Secrets and variables >
-Actions > Variables).
+Pull requests never reach the Pi. The job only runs when the repository
+variable `HIL_RUNNER` is `true` (Settings > Secrets and variables > Actions >
+Variables), so a fork without the hardware skips it.
 
 ## Roadmap
 
 - [x] Phase 1: UART command protocol, LED control, uptime; pytest suite with simulator
 - [x] Phase 2: GPIO in the loop: the Pi drives a pin into the board and measures the reaction time
 - [x] Phase 3: automatic flashing before each test run (`--flash`)
-- [ ] Phase 4: GitHub Actions self-hosted runner on the Pi: build, flash, test, publish JUnit report
+- [x] Phase 4: GitHub Actions self-hosted runner on the Pi: build, flash, test, publish JUnit report
 - [ ] Phase 5: CAN bus between board and Pi (python-can), fault injection, port to STM32 Nucleo
