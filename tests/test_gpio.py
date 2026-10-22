@@ -7,10 +7,11 @@ import pytest
 
 GPIO_STATUS = re.compile(r"GPIO STIM=([01]) RESP=([01]) EDGES=(\d+)")
 
-# Provisional limit, to be tightened from measured data. The figure includes
-# the Raspberry Pi's own user-space and kernel latency, which dominates the
-# firmware's few microseconds of interrupt latency.
-MAX_P99_LATENCY_US = 1000
+# Set from measured data: on a Raspberry Pi 4 with the TM4C123 at 16 MHz,
+# 500 edges gave p50 11.6 us, p99 12.2 us, max 31.0 us. The limit leaves
+# headroom for a busier Pi. The figure includes the Pi's own user-space and
+# kernel latency, which dominates the firmware's interrupt latency.
+MAX_P99_LATENCY_US = 100
 
 
 def gpio_status(dut):
